@@ -1,5 +1,5 @@
 # ScavengerHuntServer
-
+jonathan's squid hentai!!!!!!!
 Simple server for ScavengerHuntApp learning purposes
 
 How to setup the standalone server:
