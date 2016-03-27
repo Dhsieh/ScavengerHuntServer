@@ -1,5 +1,5 @@
 # ScavengerHuntServer
-
+penis
 Simple server for ScavengerHuntApp learning purposes
 
 How to setup the standalone server:
