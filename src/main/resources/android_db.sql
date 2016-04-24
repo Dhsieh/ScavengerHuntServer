@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS test_db;
-USE test_db;
+CREATE DATABASE IF NOT EXISTS android_db;
+USE android_db;
 
 CREATE TABLE `users` (
   `user` varchar(255) NOT NULL,
