@@ -1,5 +1,6 @@
 package Util.DBUtil;
 
+import Objects.CurrentHuntResponse;
 import Objects.FriendPageResponse;
 import Serializer.Serializer;
 import org.apache.commons.configuration.ConfigurationException;
@@ -220,7 +221,7 @@ public class DBConnector {
             logger.error("Could not update friend request for user " + username + " and friend " + friend);
             return false;
         } else {
-            logger.info("Successfuly updated friend request for user " + username + " and friend " + friend);
+            logger.info("Successfully updated friend request for user " + username + " and friend " + friend);
             return true;
         }
     }
@@ -425,20 +426,20 @@ public class DBConnector {
      * Adds a row into current_hunts when friend sends a topic to a user, done
      * whenever the friend decides to start a hunt with the username.
      *
-     * @param username      User who will send the photo
-     * @param friend        Friend who created a topic to send to username
-     * @param topic         Topic for user to take a photo of
-     * @param updateTime    Time friend created topic for username
-     * @return              Boolean true if successfully created row, false otherwise
+     * @param username   User who will send the photo
+     * @param friend     Friend who created a topic to send to username
+     * @param topic      Topic for user to take a photo of
+     * @param updateTime Time friend created topic for username
+     * @return Boolean true if successfully created row, false otherwise
      */
-    public boolean insertCurrentHunt(String username, String friend, String topic, long updateTime){
+    public boolean addCurrentHunt(String username, String friend, String topic, long updateTime) {
         Connection connection = null;
         PreparedStatement statement = null;
         int finished = -1;
         logger.info("Inserting row into current_hunts by sending topic from " + friend + " to user " + username);
         try {
             connection = dataSource.getConnection();
-            statement = connection.prepareStatement("insert into current_hunt(sender, rater,topic,updated) values(?,?,?,?)");
+            statement = connection.prepareStatement("insert into current_hunts(sender, rater,topic,updated) values(?,?,?,?)");
             statement.setString(1, username);
             statement.setString(2, friend);
             statement.setString(3, topic);
@@ -450,11 +451,11 @@ public class DBConnector {
             close(connection, statement);
         }
 
-        if(finished < 1){
+        if (finished < 1) {
             logger.error("Could not create a current hunt from friend " + friend + " to user " + username);
             return false;
-        }else{
-            logger.info("Successfully added row into current_hunt from friend " + friend + " to user " +username);
+        } else {
+            logger.info("Successfully added row into current_hunt from friend " + friend + " to user " + username);
             return true;
         }
     }
@@ -463,12 +464,12 @@ public class DBConnector {
      * Update current hunt after username has sent the photo and
      * friend has rated the photo
      *
-     * @param username  user who sends the photo
-     * @param friend    friend who rates the photo and sends the rating
-     * @param rating    rating that friend gives for the photo
-     * @return          boolean, true if update was successful annd false otherwise
+     * @param username user who sends the photo
+     * @param friend   friend who rates the photo and sends the rating
+     * @param rating   rating that friend gives for the photo
+     * @return boolean, true if update was successful annd false otherwise
      */
-    public boolean updateCurrentHunt(String username, String friend, double rating){
+    public boolean addRating(String username, String friend, double rating, long updatedTime) {
         Connection connection = null;
         PreparedStatement statement = null;
         int finished = -1;
@@ -476,10 +477,11 @@ public class DBConnector {
 
         try {
             connection = dataSource.getConnection();
-            statement = connection.prepareStatement("update current_hunts set rating = ? where sender = ? and rater = ?");
+            statement = connection.prepareStatement("update current_hunts set rating = ?, set updated = ? where sender = ? and rater = ?");
             statement.setDouble(1, rating);
-            statement.setString(2, username);
-            statement.setString(3, friend);
+            statement.setTimestamp(2, new Timestamp(updatedTime));
+            statement.setString(3, username);
+            statement.setString(4, friend);
             finished = statement.executeUpdate();
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
@@ -487,34 +489,36 @@ public class DBConnector {
             close(connection, statement);
         }
 
-        if(finished < 1){
+        if (finished < 1) {
             logger.error("Could not update current_hunts with user " + username + " and " + friend);
             return false;
-        }else{
+        } else {
             logger.info("Successfully updated current_hunts with user " + username + " and " + friend);
             return true;
         }
     }
 
     /**
-     *  Get rating for username's photo, which was rated by friend
+     * Get rating for username's photo, which was rated by friend
      *
-     * @param username  username who sent the photo and is receiving the photo
-     * @param friend    friend who saw the photo and rated it
-     * @return          rating the friend gave for the photo
+     * @param username username who sent the photo and is receiving the photo
+     * @param friend   friend who saw the photo and rated it
+     * @return rating the friend gave for the photo
      */
-    public double getRating(String username, String friend){
+    public double getRating(String username, String friend) {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet set = null;
         double rating = -1;
+        logger.info("Getting the rating by " + friend + " to " + username + "'s photo");
+
         try {
             connection = dataSource.getConnection();
             statement = connection.prepareStatement("select rating from current_hunts where sender = ? and rater = ?");
             statement.setString(1, username);
             statement.setString(2, friend);
             set = statement.executeQuery();
-            if(set.next())
+            if (set.next())
                 rating = set.getDouble(1);
             else
                 rating = -1;
@@ -524,7 +528,7 @@ public class DBConnector {
             close(connection, statement, set);
         }
 
-        if(rating == -1)
+        if (rating == -1)
             logger.error("Could not get rating from friend " + friend + " to user " + username);
         else
             logger.info("Successfully retreived rating from friend " + friend + " to user " + username);
@@ -533,19 +537,21 @@ public class DBConnector {
     }
 
     /**
-     *  Once user sees the rating of the hunt, delete the current hunt so friend can start a new one.
+     * Once user sees the rating of the hunt, delete the current hunt so friend can start a new one.
      *
-     * @param username      sender in the table
-     * @param friend        rater in the table
-     * @return              true if delete was successful and false otherwise
+     * @param username sender in the table
+     * @param friend   rater in the table
+     * @return true if delete was successful and false otherwise
      */
     public boolean deleteHunt(String username, String friend) {
         Connection connection = null;
         PreparedStatement statement = null;
         int deleted = -1;
+        logger.info("Deleting hunt where sender is " + username + " and rater is " + friend);
+
         try {
             connection = dataSource.getConnection();
-            statement = connection.prepareStatement("delete from current_hunts where user = ? and friend = ?");
+            statement = connection.prepareStatement("delete from current_hunts where sender = ? and rater = ?");
             statement.setString(1, username);
             statement.setString(2, friend);
             deleted = statement.executeUpdate();
@@ -564,16 +570,18 @@ public class DBConnector {
     /**
      * Get the necessary information of the friend based on the user
      *
-     * @param username      Username who is getting the information
-     * @param friend        Friend who the username wants information on
-     * @return              FriendPageResopnse object that contains all the necessary information
+     * @param username Username who is getting the information
+     * @param friend   Friend who the username wants information on
+     * @return FriendPageResopnse object that contains all the necessary information
      */
     public FriendPageResponse getFriendPageInfo(String username, String friend) {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet set = null;
-        int huntsPlayed = 0;
-        double avgHuntScore = 0.0;
+        FriendPageResponse response = new FriendPageResponse();
+        boolean error = false;
+        logger.info("Getting friendPageInfo of friend " + friend + " to user " + username);
+
         try {
             connection = dataSource.getConnection();
             statement = connection.prepareStatement("select avg_hunt_score, hunts_played from friends where user = ? and friend = ? ");
@@ -582,28 +590,35 @@ public class DBConnector {
             set = statement.executeQuery();
             logger.info("Getting avg_hunt_score and hunts_played for " + username + " with friend " + friend);
             if (set.next()) {
-                avgHuntScore = set.getDouble(1);
-                huntsPlayed = set.getInt(2);
+                response.setAvgHuntScore(set.getDouble(1));
+                response.setHuntsPlayed(set.getInt(2));
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
         } finally {
             close(connection, statement, set);
         }
-        return new FriendPageResponse(avgHuntScore, huntsPlayed);
+
+        if (error)
+            logger.error("Could not get " + friend + "'s friend page for user " + username);
+        else
+            logger.info("Successfully retrieved " + friend + "'s friend page for user " + username);
+        return response;
     }
 
     /**
      * Get the list of friends for a user that do not have a hunt with the user
      *
-     * @param username  user that is used in the sql query to get the list of friends
-     * @return          list of friends of the user that currently do not have a current hunt going on
+     * @param username user that is used in the sql query to get the list of friends
+     * @return list of friends of the user that currently do not have a current hunt going on
      */
     public List<String> friendsToPlayWith(String username) {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet set = null;
         List<String> friendsToPlayWith = new ArrayList<>();
+        boolean error = false;
+        logger.info("Getting all friends that can start a hunt with user " + username);
 
         try {
             connection = dataSource.getConnection();
@@ -616,20 +631,80 @@ public class DBConnector {
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
+            error = true;
         } finally {
             close(connection, statement, set);
         }
+
+        if (error)
+            logger.error("Could not get all the friends that can start a hunt with user " + username);
+        else
+            logger.info("Successfully retrieved all the friends that can start a hunt with user " + username);
 
         return friendsToPlayWith;
     }
 
     /**
+     * Queries to get all the active hunts by username, this inclues
+     * the user needing to send a photo, user needing to rate a photo,
+     * sender needing to see the score of a photo sent
+     *
+     * @param username username where we get all the current hunts from
+     * @return Returns a CurrentHuntResponse object that contains all the friends that have rated,
+     * need a photo to rate, or have a photo to be rated
+     */
+    public CurrentHuntResponse getCurrentHunts(String username) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet set = null;
+        CurrentHuntResponse response = new CurrentHuntResponse();
+        boolean error = false;
+        logger.info("Getting all the current hunts for user " + username);
+
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement("select rater from current_hunts where sender = ? and photo_sent = false");
+            statement.setString(1, username);
+            set = statement.executeQuery();
+            while (set.next()) {
+                response.addToSend(set.getString(1));
+            }
+
+            statement = connection.prepareStatement("select sender from current_hunts where rater = ? and photo_sent = true and rating = -1");
+            statement.setString(1, username);
+            set = statement.executeQuery();
+            while (set.next()) {
+                response.addToRate(set.getString(1));
+            }
+
+            statement = connection.prepareStatement("select rater from current_hunts where sender = ? and photo_sent = true and rating > -1");
+            statement.setString(1, username);
+            set = statement.executeQuery();
+            while (set.next()) {
+                response.addToSee(set.getString(1));
+            }
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
+            error = true;
+        } finally {
+            close(connection, statement, set);
+        }
+
+        if (error)
+            logger.error("Could not get the current hunts for user " + username);
+        else
+            logger.info("Successfully retrieved current hunts for user " + username);
+
+        return response;
+    }
+
+    /**
      * Update the row with username and friend to include the score for the user to get at a later time
      *
-     * @param username  username who sends the photo
-     * @param friend    friend who rates the photo
-     * @param score     score that the friend sends
-     * @return          Returns true if the update was successful otherwise false
+     * @param username username who sends the photo
+     * @param friend   friend who rates the photo
+     * @param score    score that the friend sends
+     * @return Returns true if the update was successful otherwise false
      */
     public boolean updateHuntPlayedWithFriend(String username, String friend, double score) {
         Connection connection = null;
@@ -646,7 +721,7 @@ public class DBConnector {
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
         } finally {
-            close(connection, statement );
+            close(connection, statement);
         }
         if (updated < 1) {
             return false;

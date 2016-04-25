@@ -7,6 +7,11 @@ public class FriendPageResponse {
     private double avgHuntScore;
     private int huntsPlayed;
 
+    public FriendPageResponse() {
+        avgHuntScore = -1;
+        huntsPlayed = -1;
+    }
+
     public FriendPageResponse(double avgHuntScore, int huntsPlayed) {
         this.avgHuntScore = avgHuntScore;
         this.huntsPlayed = huntsPlayed;
