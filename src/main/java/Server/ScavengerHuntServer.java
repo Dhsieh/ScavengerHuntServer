@@ -30,7 +30,7 @@ public class ScavengerHuntServer {
 
     public static void main(String[] args) {
         if (args.length != 2) {
-            throw new IllegalArgumentException("Not enough arguements require config files!");
+            throw new IllegalArgumentException("Not enough arguments require config files!");
         }
         try {
             getConfigurations(args[0]);
@@ -38,6 +38,7 @@ public class ScavengerHuntServer {
         } catch (ConfigurationException e) {
             throw new IllegalArgumentException("Config File was not an acutal config file!");
         }
+
         externalStaticFileLocation(htmlLocation);
         port(port);
 

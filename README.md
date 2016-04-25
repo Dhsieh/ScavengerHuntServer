@@ -4,25 +4,23 @@ Simple server for ScavengerHuntApp learning purposes
 
 How to setup the standalone server:
 
-SW Requirements:
+Requirements:
 	mariadb ( or mysql) - databases to hold most of the information on the server
 	maven - only needed to edit the server
-	IntelliJ - To develop Java server
+	IntelliJ( or any IDE) - To develop Java server
 	JDK 1.8
 
 1. git clone https://github.com/Dhsieh/ScavengerHuntServer
 2. log in to mariadb and create the android_db database
 3. use android_db
 4. create tables using android_db.sql
-
-5. insert users values('test','f5d1278e8109edd94e1e4197e04873b9','McTester@Tester.com','tester','McTester');
-6. make a user with a password
+5. make a user with a password
 	create user 'readwrite' identified by 'reader123'
-7. change permissions
+6. change permissions
 	grant all on android_db.* to 'readwrite'@'%';
-8. make a sql.properties file with the following
+7. edit the sql.properties file with the following
 	username=readwrite
 	password=reader123
-	url=jdbc:mariadb://localhost:3306/android_db
-9. Change the file path in DBUtil/DBConnector of the ScavengerHuntServer to localhost
-10. Change the IP address of the async adapters in the ScavengerHuntApp to the local machine IP
+	url=jdbc:mariadb://localhost:3306/android_db or jdbc:mysql://localhost:3306/android_db
+8. Change the IP address of the async adapters in the ScavengerHuntApp to the local machine IP
+9. When running ScavengerHuntServer, arguements needed are in this order: 1. server properties file 2. db properties file
