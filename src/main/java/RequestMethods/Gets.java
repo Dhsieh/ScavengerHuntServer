@@ -1,5 +1,6 @@
 package RequestMethods;
 
+import Objects.CurrentHuntResponse;
 import Objects.FriendPageResponse;
 import Util.DBUtil.DBConnector;
 import Serializer.Serializer;
@@ -55,8 +56,18 @@ public class Gets {
         return Serializer.toJson(photo);
     }
 
+    //Get the list of friends that do not have a hunt with username
     public static List<String> GetFriendsToPlayWith(String username){
         return connector.friendsToPlayWith(username);
+    }
+
+    //Get the topic sent by friend to username
+    public static String GetTopic(String username, String friend){
+        return connector.getTopic(username,friend);
+    }
+
+    public static CurrentHuntResponse GetCurrentHunts(String username){
+        return connector.getCurrentHunts(username);
     }
 
     public static void setDBConnector(DBConnector dBconnector) {

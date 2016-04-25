@@ -88,10 +88,10 @@ public class ScavengerHuntServer {
             return String.valueOf(Posts.AddTopic(topicRequest));
         }));
 
-//        post("/AddRating", ((request, response) -> {
-//            RatingRequest ratingRequest = gson.fromJson(request.body(), RatingRequest.class);
-//            return String.valueOf(Posts.AddRating(ratingRequest));
-//        }));
+        post("/AddRating", ((request, response) -> {
+            RatingRequest ratingRequest = gson.fromJson(request.body(), RatingRequest.class);
+            return String.valueOf(Posts.AddRating(ratingRequest));
+        }));
 
         /*------------ gets ------------*/
         get("/GetFriendRequests", ((request, response) -> {
@@ -115,6 +115,15 @@ public class ScavengerHuntServer {
 
         get("/GetFriendsToPlayWith", (((request, response) -> {
             return Serializer.toJson(Gets.GetFriendsToPlayWith(request.queryParams("username")));
+        })));
+
+        get("/GetTopic", (((request, response) -> {
+            return Gets.GetTopic(request.queryParams("username"), request.queryParams("friend"));
+        })));
+
+        get("/GetCurrentHunts", (((request, response) -> {
+           String toReturn = Serializer.toJson(Gets.GetCurrentHunts(request.queryParams("username")));
+            return toReturn;
         })));
 
 

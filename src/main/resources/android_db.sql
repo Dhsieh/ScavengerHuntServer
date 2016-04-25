@@ -38,14 +38,14 @@ PRIMARY KEY (`user`,`friend`,`photo_location`),
 CONSTRAINT `users_ibfk_1` foreign key (`user`) references users(`user`) on delete cascade,
 CONSTRAINT `users_ibfk_2` foreign key (`friend`) references users(`user`) on delete cascade );
 
-CREATE TABLE `current_hunts`(
-`user` varchar(255) not null,
-`friend` varchar(255) not null,
-`rating` float DEFAULT NULL,
-`topic` varchar(255) NOT NULL,
-`round` int DEFAULT 0,
-`updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-PRIMARY KEY (`user`, `friend`),
-KEY `friend` (`friend`),
-FOREIGN KEY (`user`) REFERENCES `users` (`user`) ON DELETE CASCADE,
-FOREIGN KEY (`friend`) REFERENCES `users` (`user`) ON DELETE CASCADE);
+CREATE TABLE `current_hunts` (
+  `sender` varchar(255) NOT NULL DEFAULT '',
+  `rater` varchar(255) NOT NULL DEFAULT '',
+  `rating` float DEFAULT '-1',
+  `topic` varchar(255) NOT NULL,
+  `photo_sent` tinyint(1) NOT NULL DEFAULT '0',
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`sender`,`rater`),
+  KEY `friend` (`rater`),
+  CONSTRAINT `current_hunts_ibfk_1` FOREIGN KEY (`sender`) REFERENCES `users` (`user`) ON DELETE CASCADE,
+  CONSTRAINT `current_hunts_ibfk_2` FOREIGN KEY (`rater`) REFERENCES `users` (`user`) ON DELETE CASCADE

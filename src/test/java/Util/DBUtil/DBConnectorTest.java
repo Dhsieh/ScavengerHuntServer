@@ -1,5 +1,7 @@
 package Util.DBUtil;
 
+import Objects.CurrentHuntResponse;
+import Objects.FriendPageResponse;
 import Serializer.Serializer;
 import org.apache.log4j.Logger;
 import org.junit.Test;
@@ -16,73 +18,73 @@ public class DBConnectorTest {
     private static Logger logger = Logger.getLogger(DBConnectorTest.class);
 
     @Test
-    public void login() throws Exception {
+    public void testLogin() throws Exception {
         boolean success = connector.login("test", "tester");
         logger.info(success);
     }
 
     @Test
-    public void addUser() throws Exception {
+    public void testAddUser() throws Exception {
         boolean success = connector.addUser("check", "checker", "check@check.com", "check", "O'checker");
         logger.info(success);
     }
 
     @Test
-    public void addFriendRequest() {
+    public void testAddFriendRequest() {
         boolean success = connector.addFriendRequest("quiz", "test");
         logger.info(success);
     }
 
     @Test
-    public void getFriendRequests() throws Exception {
+    public void testGetFriendRequests() throws Exception {
         List<String> requests = connector.getFriendRequests("test");
         logger.info(Serializer.toJson(requests));
     }
 
     @Test
-    public void updateFriendRequests() throws Exception {
+    public void testUpdateFriendRequests() throws Exception {
         boolean success = connector.updateFriendRequest("test", "quiz");
         logger.info(success);
     }
 
     @Test
-    public void getNoFriendRequests() throws Exception {
+    public void testGetNoFriendRequests() throws Exception {
         int numRequests = connector.getNoFriendRequests("test");
         logger.info(numRequests);
     }
 
     @Test
-    public void getFriends() throws Exception {
+    public void testGetFriends() throws Exception {
         List<String> friends = connector.getFriends("test");
         logger.info(Serializer.toJson(friends));
     }
 
     @Test
-    public void addFriend() throws Exception {
+    public void testAddFriend() throws Exception {
         boolean success = connector.addFriend("quiz", "test");
         logger.info("success");
     }
 
     @Test
-    public void sendPhoto() throws Exception {
+    public void testSendPhoto() throws Exception {
         boolean success = connector.sendPhoto("test", "quiz", "/this/location", System.currentTimeMillis());
         logger.info(success);
     }
 
     @Test
-    public void getPhoto() throws Exception {
+    public void testGetPhoto() throws Exception {
         String location = connector.getPhoto("test", "quiz");
         logger.info(location);
     }
 
     @Test
-    public void getTopic() throws Exception {
+    public void testGetTopic() throws Exception {
         String topic = connector.getTopic("test", "quiz");
         logger.info(topic);
     }
 
     @Test
-    public void getRank() throws Exception {
+    public void testGetRank() throws Exception {
         double rank = connector.getRating("test", "quiz");
         logger.info(rank);
     }
@@ -97,6 +99,28 @@ public class DBConnectorTest {
     public void testFriendsToPlayWith(){
         List<String> friendsToPlayWith = connector.friendsToPlayWith("test");
         logger.info(friendsToPlayWith);
+    }
+
+    @Test
+    public void testGetFriendPageInfo(){
+        FriendPageResponse response = connector.getFriendPageInfo("test", "quiz");
+        logger.info(response.getAvgHuntScore() + " " + response.getHuntsPlayed());
+    }
+
+    @Test
+    public void testAddDeleteCurrentHunt(){
+        boolean success = connector.addCurrentHunt("test", "quiz", "cat", System.currentTimeMillis());
+        logger.info(success);
+        success = connector.deleteHunt("test", "quiz");
+        logger.info(success);
+    }
+
+    @Test
+    public void testGetCurrentHunts(){
+        CurrentHuntResponse response = connector.getCurrentHunts("test");
+        logger.info(response.getToRate());
+        logger.info(response.getToSend());
+        logger.info(response.getToSee());
     }
 
 }
