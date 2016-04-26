@@ -84,9 +84,15 @@ public class DBConnectorTest {
     }
 
     @Test
-    public void testGetRank() throws Exception {
+    public void testGetRating() throws Exception {
         double rank = connector.getRating("test", "quiz");
         logger.info(rank);
+    }
+
+    @Test
+    public void testAddRating(){
+        boolean success = connector.addRating("test","quiz", 2, System.currentTimeMillis());
+        logger.info(success);
     }
 
     @Test

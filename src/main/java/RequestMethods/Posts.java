@@ -61,12 +61,12 @@ public class Posts {
 
     public static boolean AddTopic(TopicRequest request){
         boolean addTopic = connector.addCurrentHunt(request.getUsername(), request.getFriend(), request.getTopic(), request.getUpdateTime());
-        logger.info("Sent topic to " + request.getUsername() + " from " + request.getFriend());
+        logger.info("Sent topic to " + request.getFriend() + " from " + request.getUsername());
         return addTopic;
     }
 
     public static boolean AddRating(RatingRequest request){
-        boolean addRating = connector.addRating(request.getUsername(), request.getFriend(), request.getRanking(), request.getUpdated());
+        boolean addRating = connector.addRating(request.getUsername(), request.getFriend(), request.getRating(), request.getUpdated());
         logger.info("Sent rating of photo by " +  request.getUsername() + " from " + request.getFriend());
         return addRating;
     }

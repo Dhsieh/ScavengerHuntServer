@@ -6,13 +6,13 @@ package Objects;
 public class RatingRequest {
     private String username;
     private String friend;
-    private Float ranking;
+    private Float rating;
     private long updated;
 
-    public RatingRequest(String username, String friend, Float ranking, long updated) {
+    public RatingRequest(String username, String friend, Float rating, long updated) {
         this.username = username;
         this.friend = friend;
-        this.ranking = ranking;
+        this.rating = rating;
         this.updated = updated;
     }
 
@@ -32,12 +32,12 @@ public class RatingRequest {
         this.friend = friend;
     }
 
-    public Float getRanking() {
-        return ranking;
+    public Float getRating() {
+        return rating;
     }
 
-    public void setRanking(Float ranking) {
-        this.ranking = ranking;
+    public void setRating(Float rating) {
+        this.rating = rating;
     }
 
     public long getUpdated() {

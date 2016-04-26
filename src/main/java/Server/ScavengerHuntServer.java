@@ -48,15 +48,6 @@ public class ScavengerHuntServer {
             return "Hello World";
         });
 
-        post("/books", (request, response) -> {
-            //   System.out.println(request.body());
-            String author = request.queryParams("author");
-            String title = request.queryParams("title");
-            return author + " " + title;
-
-        });
-
-
         /*------------ posts ------------*/
         post("/Login", (request, response) -> {
             LoginRequest loginRequest = gson.fromJson(request.body(), LoginRequest.class);
@@ -96,8 +87,7 @@ public class ScavengerHuntServer {
 
         /*------------ gets ------------*/
         get("/GetFriendRequests", ((request, response) -> {
-           List<String> friendRequests = Gets.GetFriendRequests(request.queryParams("username"));
-            return Serializer.toJson(friendRequests);
+            return Serializer.toJson(Gets.GetFriendRequests(request.queryParams("username")));
         }));
 
         get("/GetFriends", ((request, response) -> {
@@ -106,8 +96,7 @@ public class ScavengerHuntServer {
         }));
 
         get("/GetFriendPage", (((request, response) -> {
-            FriendPageResponse friendPageResponse = Gets.GetFriendResponse(request.queryParams("username"), request.queryParams("friend"));
-            return Serializer.toJson(friendPageResponse);
+            return Serializer.toJson(Gets.GetFriendResponse(request.queryParams("username"), request.queryParams("friend")));
         })));
 
         get("/GetPhoto", (((request, response) -> {
@@ -123,8 +112,7 @@ public class ScavengerHuntServer {
         })));
 
         get("/GetCurrentHunts", (((request, response) -> {
-           String toReturn = Serializer.toJson(Gets.GetCurrentHunts(request.queryParams("username")));
-            return toReturn;
+            return Serializer.toJson(Gets.GetCurrentHunts(request.queryParams("username")));
         })));
 
 

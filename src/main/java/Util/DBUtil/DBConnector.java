@@ -11,7 +11,6 @@ import java.beans.PropertyVetoException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
@@ -440,8 +439,8 @@ public class DBConnector {
         try {
             connection = dataSource.getConnection();
             statement = connection.prepareStatement("insert into current_hunts(sender, rater,topic,updated) values(?,?,?,?)");
-            statement.setString(1, username);
-            statement.setString(2, friend);
+            statement.setString(1, friend);
+            statement.setString(2, username);
             statement.setString(3, topic);
             statement.setTimestamp(4, new Timestamp(updateTime));
             finished = statement.executeUpdate();
@@ -467,21 +466,20 @@ public class DBConnector {
      * @param username user who sends the photo
      * @param friend   friend who rates the photo and sends the rating
      * @param rating   rating that friend gives for the photo
-     * @return boolean, true if update was successful annd false otherwise
+     * @return boolean, true if update was successful and false otherwise
      */
     public boolean addRating(String username, String friend, double rating, long updatedTime) {
         Connection connection = null;
         PreparedStatement statement = null;
         int finished = -1;
-        logger.info("Updating row into current_hunts containg user " + username + " with friend " + friend);
-
+        logger.info("Updating row into current_hunts containing user " + username + " with friend " + friend);
         try {
             connection = dataSource.getConnection();
-            statement = connection.prepareStatement("update current_hunts set rating = ?, set updated = ? where sender = ? and rater = ?");
+            statement = connection.prepareStatement("update current_hunts set rating = ?, updated = ? where sender = ? and rater = ?");
             statement.setDouble(1, rating);
             statement.setTimestamp(2, new Timestamp(updatedTime));
-            statement.setString(3, username);
-            statement.setString(4, friend);
+            statement.setString(3, friend);
+            statement.setString(4, username);
             finished = statement.executeUpdate();
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
@@ -493,7 +491,7 @@ public class DBConnector {
             logger.error("Could not update current_hunts with user " + username + " and " + friend);
             return false;
         } else {
-            logger.info("Successfully updated current_hunts with user " + username + " and " + friend);
+            logger.info("Successfully updated current_hunts with user " + username + "'s rating" + rating + " and " + friend);
             return true;
         }
     }
