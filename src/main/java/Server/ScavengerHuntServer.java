@@ -1,7 +1,7 @@
 package Server;
 
 import Objects.*;
-import Util.DBUtil.DBConnector;
+import Utils.DbUtil.DBConnector;
 import RequestMethods.Gets;
 import RequestMethods.Posts;
 import Serializer.Serializer;
@@ -33,6 +33,8 @@ public class ScavengerHuntServer {
             throw new IllegalArgumentException("Not enough arguments require config files!");
         }
         try {
+            logger.info(args[0]);
+            logger.info(args[1]);
             getConfigurations(args[0]);
             setDBConnectors(DBConnector.getInstance(args[1]));
         } catch (ConfigurationException e) {
@@ -43,10 +45,14 @@ public class ScavengerHuntServer {
         port(port);
 
 
-        //This is a test
+        //These are tests
         get("/HelloWorld", (request, response) -> {
             return "Hello World";
         });
+
+        post("/TempPlacePhoto", (((request, response) -> {
+            return String.valueOf(Posts.TempPlacePhoto(request));
+        })));
 
         /*------------ posts ------------*/
         post("/Login", (request, response) -> {

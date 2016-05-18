@@ -1,8 +1,7 @@
-package Util.DBUtil;
+package Utils.DbUtil;
 
 import Objects.CurrentHuntResponse;
 import Objects.FriendPageResponse;
-import Serializer.Serializer;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 
@@ -728,6 +727,7 @@ public class DBConnector {
         }
     }
 
+    //Close a connection, statement, and set
     private static void close(Connection conn, PreparedStatement statement, ResultSet set) {
         try {
             conn.close();
@@ -741,6 +741,7 @@ public class DBConnector {
         }
     }
 
+    //Close a connection and statement
     private static void close(Connection conn, PreparedStatement statement) {
         try {
             conn.close();

@@ -9,6 +9,9 @@ http://www.w3.org/2001/XMLSchema-instance ">
     <artifactId>ScavengerHuntServer</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <build>
         <plugins>
             <plugin>
@@ -47,7 +50,36 @@ http://www.w3.org/2001/XMLSchema-instance ">
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <version>2.1.4</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>generate-rpm</id>
+                        <goals>
+                            <goal>rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <name>ScavengerHuntServer</name>
+                    <group>test</group>
+                    <release>1</release>
+                    <targetOS>Linux</targetOS>
+                    <needarch>noarch</needarch>
+                    <description>Runs ScavengerHuntServer</description>
+                    <defineStatements>
+                        <defineStatement>ScavengerHuntServer</defineStatement>
+                        <defineStatement>version 1</defineStatement>
+                        <defineStatement>release 0</defineStatement>
+                    </defineStatements>
+                </configuration>
+            </plugin>
         </plugins>
+
     </build>
 
     <dependencies>
@@ -79,7 +111,7 @@ http://www.w3.org/2001/XMLSchema-instance ">
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <version>1.3.0-beta-2</version>
+            <version>1.4.4</version>
         </dependency>
 
         <dependency>
@@ -128,8 +160,29 @@ http://www.w3.org/2001/XMLSchema-instance ">
             <version>4.5</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>rpm-maven-plugin</artifactId>
+            <version>2.1.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-jdk14</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
     </dependencies>
-
 </project>

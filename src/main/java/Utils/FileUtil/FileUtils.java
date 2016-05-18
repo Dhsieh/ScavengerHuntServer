@@ -1,7 +1,5 @@
-package Util.FileUtil;
+package Utils.FileUtil;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.log4j.Logger;
 
@@ -27,7 +25,7 @@ public class FileUtils {
      * @param user      name of user which the directory will be named with
      * @return          Boolean that determines if directory was created or not
      */
-    public boolean createUserDirecotry(String user) {
+    public boolean createUserDirectory(String user) {
         File userDirectory = new File(USERS_DIRECTORY + "/" + user);
         if (!userDirectory.exists()) {
             logger.info("Creating " + user + " directory!");

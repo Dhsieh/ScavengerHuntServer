@@ -4,8 +4,8 @@ import Objects.FriendRequestRequest;
 import Objects.RatingRequest;
 import Objects.SignUpRequest;
 import Objects.TopicRequest;
-import Util.DBUtil.DBConnector;
-import Util.FileUtil.FileUtils;
+import Utils.DbUtil.DBConnector;
+import Utils.FileUtil.FileUtils;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
@@ -26,7 +26,7 @@ import java.io.InputStream;
 
 public class Posts {
 
-    private static Logger logger = Logger.getLogger(Posts.class);
+    private static final Logger logger = Logger.getLogger(Posts.class);
     private static DBConnector connector;
     private static FileUtils fileUtils;
 
@@ -51,7 +51,7 @@ public class Posts {
         String friend = request.getFriend();
         //boolean updateFriendRequest = connector.updateFriendRequest(username, friend);
         boolean updateFriendRequest = false;
-        if(request.isResponse()){
+        if (request.isResponse()) {
             updateFriendRequest = connector.addFriend(username, friend);
             updateFriendRequest = connector.addFriend(friend, username);
         }
@@ -59,15 +59,17 @@ public class Posts {
         return updateFriendRequest;
     }
 
-    public static boolean AddTopic(TopicRequest request){
+    //Add a topic to a current hunt, basically starts a new hunt
+    public static boolean AddTopic(TopicRequest request) {
         boolean addTopic = connector.addCurrentHunt(request.getUsername(), request.getFriend(), request.getTopic(), request.getUpdateTime());
         logger.info("Sent topic to " + request.getFriend() + " from " + request.getUsername());
         return addTopic;
     }
 
-    public static boolean AddRating(RatingRequest request){
+    //Adds a rating to a current hunt
+    public static boolean AddRating(RatingRequest request) {
         boolean addRating = connector.addRating(request.getUsername(), request.getFriend(), request.getRating(), request.getUpdated());
-        logger.info("Sent rating of photo by " +  request.getUsername() + " from " + request.getFriend());
+        logger.info("Sent rating of photo by " + request.getUsername() + " from " + request.getFriend());
         return addRating;
     }
 
@@ -80,12 +82,13 @@ public class Posts {
      * @return Returns true if it was successful in placing the file, if anything goes wrong before that, returns false
      */
     public static boolean PlacePhoto(Request request) {
-        long createTime = 0;
         InputStream stream = null;
         ServletFileUpload upload = new ServletFileUpload();
         String user = null;
         String friend = null;
         File photo = null;
+        long createTime = 0;
+        boolean success = false;
         try {
             FileItemIterator fileItemIterator = upload.getItemIterator(request.raw());
             FileItemStream item = null;
@@ -103,13 +106,13 @@ public class Posts {
                             friend = Streams.asString(stream);
                         } else if (name.equalsIgnoreCase("createTime")) {
                             createTime = Long.valueOf(Streams.asString(stream));
+                        } else if (name.equalsIgnoreCase("photo")) {
+                            photo = new File(fileUtils.getPhotoLocation(user, friend, createTime));
+                            success = fileUtils.placeFile(stream, photo);
                         } else {
-                            logger.error(name + " was not expected, expected user,friend,createTime ");
+                            logger.error(name + " was not expected, expected: user,friend, or createTime ");
                         }
                     }
-                } else {
-                    photo = new File(fileUtils.getPhotoLocation(user, friend, createTime));
-                    return fileUtils.placeFile(stream, photo);
                 }
             }
         } catch (FileUploadException e) {
@@ -117,7 +120,40 @@ public class Posts {
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-        return false;
+        return success;
+    }
+
+    public static boolean TempPlacePhoto(Request request) {
+        InputStream stream = null;
+        ServletFileUpload upload = new ServletFileUpload();
+        String user = null;
+        String friend = null;
+        File photo = null;
+        long createTime = 0;
+        boolean success = false;
+        try {
+            FileItemIterator fileItemIterator = upload.getItemIterator(request.raw());
+            FileItemStream item = null;
+            while (fileItemIterator.hasNext()) {
+                item = fileItemIterator.next();
+                String name = item.getFieldName();
+                stream = item.openStream();
+                if (item.isFormField()) {
+                    if (item.getFieldName() != null) {
+                        //receiver of the message
+                        if (name.equalsIgnoreCase("upload")) {
+                            photo = new File(fileUtils.getPhotoLocation("test", "quiz", System.currentTimeMillis()));
+                            success = fileUtils.placeFile(stream, photo);
+                        }
+                    }
+                }
+            }
+        } catch (FileUploadException e) {
+            logger.error(e.getMessage(), e);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return success;
     }
 
     public static void setDBConnector(DBConnector dbConnector) {

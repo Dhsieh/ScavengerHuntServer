@@ -1,8 +1,9 @@
-package Util.DBUtil;
+package Utils.DBUtil;
 
 import Objects.CurrentHuntResponse;
 import Objects.FriendPageResponse;
 import Serializer.Serializer;
+import Utils.DbUtil.DBConnector;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 

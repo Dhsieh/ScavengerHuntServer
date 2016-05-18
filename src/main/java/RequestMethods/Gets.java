@@ -2,9 +2,9 @@ package RequestMethods;
 
 import Objects.CurrentHuntResponse;
 import Objects.FriendPageResponse;
-import Util.DBUtil.DBConnector;
+import Utils.DbUtil.DBConnector;
 import Serializer.Serializer;
-import Util.FileUtil.FileUtils;
+import Utils.FileUtil.FileUtils;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 
 public class Gets {
-    private static Logger logger = Logger.getLogger(Gets.class);
+    private final static Logger logger = Logger.getLogger(Gets.class);
     private static DBConnector connector;
     private static FileUtils fileUtils;
 
@@ -29,22 +29,19 @@ public class Gets {
         return friendRequests;
     }
 
+    //Get the list of friends
     public static List<String> GetFriends(String username) {
         List<String> friendList = connector.getFriends(username);
-        if (friendList != null) {
-            logger.info("Successfully got " + username + "'s friend list");
-        }
         return friendList;
     }
 
+    //Get the number of friends of a user
     public static int GetNumberOfFriends(String username) {
         int friendCount = connector.getNoFriendRequests(username);
-        if (friendCount != -1) {
-            logger.info("Successfully got " + username + "'s number of friends");
-        }
         return friendCount;
     }
 
+    //Get the necessary information to populate a friend page activity
     public static FriendPageResponse GetFriendResponse(String username, String friend){
         return connector.getFriendPageInfo(username, friend);
     }
